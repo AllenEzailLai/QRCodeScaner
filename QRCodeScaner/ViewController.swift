@@ -11,6 +11,8 @@ import AVFoundation
 
 class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
 
+    @IBOutlet weak var scanCodeOutput: UILabel!    
+    
     var device: AVCaptureDevice = AVCaptureDevice.defaultDeviceWithMediaType(AVMediaTypeVideo)
     lazy var deviceInput: AVCaptureDeviceInput = {
         return AVCaptureDeviceInput(device: self.device, error: nil)
@@ -31,14 +33,17 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
         metadataOutput.metadataObjectTypes = [AVMetadataObjectTypeQRCode]
 //        previewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill
         previewLayer.frame = view.bounds
-        view.layer.addSublayer(previewLayer)
+        view.layer.insertSublayer(previewLayer, atIndex: 0)
         
         session.startRunning()
     }
     
     func captureOutput(captureOutput: AVCaptureOutput!, didOutputMetadataObjects metadataObjects: [AnyObject]!, fromConnection connection: AVCaptureConnection!) {
-        println(metadataObjects)
-        
+        for current in metadataObjects {
+            if var readableCodeObject = current as? AVMetadataMachineReadableCodeObject {
+                scanCodeOutput.text = readableCodeObject.stringValue
+            }
+        }
     }
 
     override func didReceiveMemoryWarning() {
